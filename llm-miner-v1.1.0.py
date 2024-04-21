@@ -12,7 +12,6 @@ import requests
 from multiprocessing import Process, set_start_method
 from dotenv import load_dotenv
 
-
 from llm_mining_core.utils import (
     load_config,
     load_miner_ids,
@@ -253,12 +252,6 @@ def worker(miner_id):
             traceback.print_exc()
 
         time.sleep(base_config.sleep_duration)
-
-
-import random
-import string
-from dotenv import load_dotenv
-import os
 
 def generate_wallet_strings(num_strings, length=6):
     load_dotenv()
