@@ -255,19 +255,41 @@ def worker(miner_id):
         time.sleep(base_config.sleep_duration)
 
 
+import random
+import string
+from dotenv import load_dotenv
+import os
+
 def generate_wallet_strings(num_strings, length=6):
     load_dotenv()
     wallet_address = os.getenv("MINER_ID_0")
     characters = string.ascii_lowercase + string.digits
     wallet_strings = []
     
-    for _ in range(num_strings):
-        random_string = ''.join(random.choice(characters) for _ in range(length))
-        new_string = wallet_address + "-" + random_string
+    if os.path.isfile('.uuid'):
+        with open('.uuid', 'r') as file:
+            alphanumeric_strings = [line.strip() for line in file.readlines()]
+        
+        if len(alphanumeric_strings) < num_strings:
+            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings - len(alphanumeric_strings))]
+            
+            alphanumeric_strings.extend(additional_strings)
+            
+            with open('.uuid', 'w') as file:
+                for alphanumeric_string in alphanumeric_strings:
+                    file.write(alphanumeric_string + '\n')
+    else:
+        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings)]
+        
+        with open('.uuid', 'w') as file:
+            for alphanumeric_string in alphanumeric_strings:
+                file.write(alphanumeric_string + '\n')
+    
+    for alphanumeric_string in alphanumeric_strings:
+        new_string = wallet_address + "-" + alphanumeric_string
         wallet_strings.append(new_string)
     
     return wallet_strings
-
 
 def main_loop():
     processes = []
