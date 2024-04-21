@@ -1,0 +1,38 @@
+[service]
+base_url = "http://sequencer.heurist.xyz"
+llm_url = "http://localhost"
+signal_url = "https://d2k7cjzmjgpm6p.cloudfront.net/prod"
+sd_timeout_seconds = 22
+llm_timeout_seconds = 210
+
+[logging]
+sd_log_filename = "sd-miner.log"
+llm_log_filename = "llm-miner.log"
+
+[versions]
+sd_version = "sd-v1.2.0"
+llm_version = "llm-v1.1.0"
+
+[storage]
+s3_bucket = 'heurist-images'
+base_dir = "~/.cache/heurist"
+
+[model_config]
+model_config_url = "https://raw.githubusercontent.com/heurist-network/heurist-models/main/models.json"
+vae_config_url = "https://raw.githubusercontent.com/heurist-network/heurist-models/main/vae.json"
+
+[system]
+# Make sure to increase num_cuda_devices for SD miner if your machine has multiple GPUs
+num_cuda_devices = 1
+# Number of children processes is only applicable to LLM miner
+num_child_process = 40
+sleep_duration = 2
+min_deadline = 1
+reload_interval = 600
+
+[processing_limits]
+max_iterations = 50
+max_width = 1024
+max_height = 1024
+# Limit on the concurrent requests for LLM miner. Actual running requests may go over. Higher concurrency results in higher throughput but longer latency
+concurrency_soft_limit = 50
