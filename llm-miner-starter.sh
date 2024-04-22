@@ -261,7 +261,7 @@ validateVram() {
     elif [[ "$heurist_model_id" == *"pro-mistral-7b"* ]] && [ "$available_mb" -gt 18000 ]; then
         local gpu_memory_util=$(echo "scale=2; (22000-1000)/$available_mb" | bc)
     else
-        local gpu_memory_util=$(echo "scale=2; (12000-1000)/$available_mb" | bc) # Default value or handle other cases as needed
+        local gpu_memory_util=$(echo "scale=2; (22000-1000)/$available_mb" | bc) # Default value or handle other cases as needed
     fi
 
     # Output the gpu_memory_util value
