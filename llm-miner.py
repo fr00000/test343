@@ -49,7 +49,7 @@ def generate(
         return
 
     decoded_prompt = None
-    if "openhermes" in model_id:
+    if "openhermes" in model_id or "dolphin" in model_id:
         decoded_prompt = decode_prompt_chatml(prompt)
     elif "llama" in model_id:
         decoded_prompt = decode_prompt_llama(prompt)
@@ -246,15 +246,16 @@ def worker(miner_id_list):
                     print(
                         "Warning: the previous request timed out. You will not earn points. Please check miner configuration or network connection."
                     )
+                miner_id = miner_id_list[(miner_id_list.index(miner_id) + 1) % len(miner_id_list)]
             else:
                 miner_id = miner_id_list[(miner_id_list.index(miner_id) + 1) % len(miner_id_list)]
         except Exception as e:
             logging.error(f"Error occurred for miner {miner_id}: {e}")
             import traceback
-            traceback.print_exc()
-            
-        time.sleep(base_config.sleep_duration)
 
+            traceback.print_exc()
+
+        time.sleep(base_config.sleep_duration)
 
 def generate_wallet_strings(num_strings, length=6):
     # Load the environment variables from the .env file
