@@ -23,10 +23,10 @@ vae_config_url = "https://raw.githubusercontent.com/heurist-network/heurist-mode
 
 [system]
 # Make sure to increase num_cuda_devices for SD miner if your machine has multiple GPUs
-num_cuda_devices = 2
+num_cuda_devices = 1
 # Number of children processes is only applicable to LLM miner
 num_child_process = 40
-sleep_duration = 3
+sleep_duration = 2
 min_deadline = 1
 reload_interval = 600
 
