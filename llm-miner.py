@@ -191,7 +191,7 @@ def generate(
 def worker(miner_id_list):
     miner_id = miner_id_list[0]
     base_config, server_config = load_config()
-    for i in miner_id_list:
+    for i in len(miner_id_list):
         configure_logging(base_config, miner_id_list[i])
         
     while True:
