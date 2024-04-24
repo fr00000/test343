@@ -191,9 +191,9 @@ def generate(
 def worker(miner_id_list):
     miner_id = miner_id_list[0]
     base_config, server_config = load_config()
-    configure_logging(base_config, miner_id)
-    configure_logging(base_config, miner_id_list[1])
-    configure_logging(base_config, miner_id_list[2])
+    for i in miner_id_list:
+        configure_logging(base_config, miner_id_list[i])
+        
     while True:
         if not check_vllm_server_status():
             logging.error(
@@ -265,7 +265,7 @@ def generate_wallet_strings(num_strings, length=6):
     wallet_addresses = [
         os.getenv("MINER_ID_0"),
         os.getenv("MINER_ID_1"),
-        os.getenv("MINER_ID_2")
+        os.getenv("MINER_ID_2"),
     ]
     
     # Create a string of all lowercase letters and digits
@@ -281,9 +281,9 @@ def generate_wallet_strings(num_strings, length=6):
             alphanumeric_strings = [line.strip() for line in file.readlines()]
         
         # Check if the file contains enough strings
-        if len(alphanumeric_strings) < num_strings:
+        if len(alphanumeric_strings) < num_strings * len(wallet_addresses):
             # Generate additional alphanumeric strings
-            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings - len(alphanumeric_strings))]
+            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range((num_strings * len(wallet_addresses)) - len(alphanumeric_strings))]
             
             # Append the additional strings to the existing list
             alphanumeric_strings.extend(additional_strings)
@@ -294,7 +294,7 @@ def generate_wallet_strings(num_strings, length=6):
                     file.write(alphanumeric_string + '\n')
     else:
         # Generate new alphanumeric strings
-        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings)]
+        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings * len(wallet_addresses))]
         
         # Save the alphanumeric strings to the .uuid file
         with open('.uuid', 'w') as file:
@@ -302,10 +302,11 @@ def generate_wallet_strings(num_strings, length=6):
                 file.write(alphanumeric_string + '\n')
     
     # Generate the wallet strings
-    for alphanumeric_string in alphanumeric_strings:
+    for i in range(num_strings):
         wallet_strings = []
-        for wallet_address in wallet_addresses:
-            new_string = wallet_address + "-" + alphanumeric_string
+        for j in range(len(wallet_addresses)):
+            alphanumeric_string = alphanumeric_strings[i * len(wallet_addresses) + j]
+            new_string = wallet_addresses[j] + "-" + alphanumeric_string
             wallet_strings.append(new_string)
         wallet_strings_list.append(wallet_strings)
     
