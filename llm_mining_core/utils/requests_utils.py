@@ -24,7 +24,7 @@ def check_vllm_server_status():
             return True
     return False
 
-def send_miner_request(config, miner_id, model_id):
+def send_miner_request(config, miner_id, model_id, session):
     """
     Sends a request for a new mining job to the server using the given configuration.
 
@@ -62,34 +62,33 @@ def send_miner_request(config, miner_id, model_id):
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
 
-    with requests.Session() as session:
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        try:
-            response = session.post(url, json=request_data)
-            # Assuming response.text contains the full text response from the server
-            warning_indicator = "Warning:"
-            if response and warning_indicator in response.text:
-                # Extract the warning message and use strip() to remove any trailing quotation marks
-                warning_message = response.text.split(warning_indicator)[1].strip('"')
-                print(f"WARNING: {warning_message}")
-                return None, None
-        
-            try:
-                data = response.json()
-                end_time = time.time()
-                request_latency = end_time - current_time
-                if isinstance(data, dict):
-                    return data, request_latency
-                else:
-                    return None, None
-            except Exception as e:
-                # fail silently
-                # print(f"Error parsing response: {e}")
-                return None, None
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error sending request: {e}")
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    try:
+        response = session.post(url, json=request_data)
+        # Assuming response.text contains the full text response from the server
+        warning_indicator = "Warning:"
+        if response and warning_indicator in response.text:
+            # Extract the warning message and use strip() to remove any trailing quotation marks
+            warning_message = response.text.split(warning_indicator)[1].strip('"')
+            print(f"WARNING: {warning_message}")
             return None, None
+    
+        try:
+            data = response.json()
+            end_time = time.time()
+            request_latency = end_time - current_time
+            if isinstance(data, dict):
+                return data, request_latency
+            else:
+                return None, None
+        except Exception as e:
+            # fail silently
+            # print(f"Error parsing response: {e}")
+            return None, None
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error sending request: {e}")
+        return None, None
     
 def get_metric_value(metric_name, base_config):
     """
