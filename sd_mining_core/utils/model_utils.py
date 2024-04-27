@@ -5,7 +5,9 @@ import io
 import gc
 import logging
 import time
-from diffusers import AutoencoderKL, DPMSolverMultistepScheduler
+from diffusers import AutoencoderKL, DPMSolverMultistepScheduler, DiffusionPipeline, StableDiffusionPipeline
+from DeepCache import DeepCacheSDHelper
+from diffusers.models.attention_processor import AttnProcessor2_0
 from vendor.lpw_stable_diffusion_xl import StableDiffusionXLLongPromptWeightingPipeline
 from vendor.lpw_stable_diffusion import StableDiffusionLongPromptWeightingPipeline
 
@@ -36,6 +38,14 @@ def load_model(config, model_id):
         pipe = StableDiffusionXLLongPromptWeightingPipeline.from_single_file(model_file_path, torch_dtype=torch.float16).to('cuda:' + str(config.cuda_device_id))
     pipe.safety_checker = None
     # TODO: Add support for other schedulers
+    pipe.unet.set_attn_processor(AttnProcessor2_0())
+    pipe.enable_xformers_memory_efficient_attention()
+    helper = DeepCacheSDHelper(pipe=pipe)
+    helper.set_params(
+        cache_interval=3,
+        cache_branch_id=0,
+        )
+    helper.enable()
 
     if 'vae' in model_config:
         vae_name = model_config['vae']
