@@ -4,16 +4,16 @@ import time
 import boto3
 from .model_utils import execute_model
 
-def post_request(url, data, miner_id=None):
+def post_request(url, data, miner_id, session):
     try:
-        response = requests.post(url, json=data)
+        response = session.post(url, json=data)
         logging.debug(f"Request sent to {url} with data {data} received response: {response.status_code}")
         # Directly return the response object
         return response
     except ValueError as ve:
         miner_id_info = f" for miner_id {miner_id}" if miner_id else ""
         logging.error(f"Failed to parse JSON response{miner_id_info}: {ve}")
-    except requests.exceptions.RequestException as re:
+    except session.exceptions.RequestException as re:
         miner_id_info = f" for miner_id {miner_id}" if miner_id else ""
         logging.error(f"Request failed{miner_id_info}: {re}")
     return None
@@ -59,7 +59,7 @@ def execute_inference_and_upload(config, miner_id, job, temp_credentials):
 
     return s3_key, inference_latency, loading_latency, upload_latency
 
-def submit_job_result(config, miner_id, job, temp_credentials, job_start_time, request_latency):
+def submit_job_result(config, miner_id, job, temp_credentials, job_start_time, request_latency, session):
     """Submits the job result after processing and logs the total and inference times."""
     s3_key, inference_latency, loading_latency, upload_latency = execute_inference_and_upload(config, miner_id, job, temp_credentials)
 
@@ -78,7 +78,7 @@ def submit_job_result(config, miner_id, job, temp_credentials, job_start_time, r
 
     try:
         start_time = time.time()  # Start measuring time for miner_submit call
-        response = requests.post(config.base_url + "/miner_submit", json=result)
+        response = session.post(config.base_url + "/miner_submit", json=result)
         response.raise_for_status()
         end_time = time.time()  # End measuring time
 
@@ -107,7 +107,7 @@ def submit_job_result(config, miner_id, job, temp_credentials, job_start_time, r
         # Log the compiled message
         logging.info(latencies_log)
         
-    except requests.exceptions.RequestException as err:
+    except session.exceptions.RequestException as err:
         logging.error(f"Error occurred during job submission: {err}")
 
 
