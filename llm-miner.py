@@ -38,6 +38,7 @@ def generate(
     use_stream_flag,
     model_id,
     request_latency,
+    session
 ):
     logging.info(
         f"Processing Request ID: {job_id}. Model ID: {model_id}. Miner ID: {miner_id}"
@@ -133,22 +134,21 @@ def generate(
                     yield base_config.eos
 
             # Make a POST request to the server after initial data is received
-            with requests.Session() as session:
-                try:
-                    headers = {
-                        "job_id": str(job_id),
-                        "miner_id": str(miner_id),
-                        "Content-Type": "text/event-stream",
-                    }
-                    response = session.post(
-                        f"{base_config.base_url}/miner_submit_stream",
-                        headers=headers,
-                        data=generate_data(stream),
-                        stream=True,
-                    )
-                    response.raise_for_status()
-                except requests.RequestException as e:
-                    logging.error(f"Failed to submit stream: {e}")
+            try:
+                headers = {
+                    "job_id": str(job_id),
+                    "miner_id": str(miner_id),
+                    "Content-Type": "text/event-stream",
+                }
+                response = session.post(
+                    f"{base_config.base_url}/miner_submit_stream",
+                    headers=headers,
+                    data=generate_data(stream),
+                    stream=True,
+                )
+                response.raise_for_status()
+            except requests.RequestException as e:
+                logging.error(f"Failed to submit stream: {e}")
 
         else:
             logging.info("Non-streaming mode")
@@ -182,24 +182,25 @@ def generate(
                 "request_latency": request_latency,
                 "inference_latency": inference_latency,
             }
-            requests.post(url, json=result)
+            session.post(url, json=result)
     except Exception as e:
         logging.error(f"Error during text generation request: {str(e)}")
         return
 
 
 def worker(miner_id_list):
+    session = requests.Session()
     miner_id = miner_id_list[0]
     base_config, server_config = load_config()
     for m_id in miner_id_list:
         configure_logging(base_config, m_id)
         
     while True:
-        if not check_vllm_server_status():
-            logging.error(
-                f"vLLM server process for model {server_config.served_model_name} is not running. Exiting the llm miner program."
-            )
-            sys.exit(1)
+        # if not check_vllm_server_status():
+        #     logging.error(
+        #         f"vLLM server process for model {server_config.served_model_name} is not running. Exiting the llm miner program."
+        #     )
+        #     sys.exit(1)
         try:
             # Check if the number of running requests exceeds the maximum concurrent requests
             # if (
@@ -211,7 +212,7 @@ def worker(miner_id_list):
             #     time.sleep(base_config.sleep_duration)
             #     pass
             job, request_latency = send_miner_request(
-                base_config, miner_id, base_config.served_model_name
+                base_config, miner_id, base_config.served_model_name, session
             )
             if job is not None:
                 job_start_time = time.time()
@@ -239,6 +240,7 @@ def worker(miner_id_list):
                     use_stream,
                     model_id,
                     request_latency,
+                    session
                 )
                 job_end_time = time.time()  # Record the end time
                 total_processing_time = job_end_time - job_start_time
@@ -255,7 +257,7 @@ def worker(miner_id_list):
 
             traceback.print_exc()
 
-        time.sleep(base_config.sleep_duration)
+        time.sleep(.5)
 
 def generate_wallet_strings(num_strings, length=6):
     # Load the environment variables from the .env file
