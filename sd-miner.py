@@ -140,14 +140,14 @@ def send_miner_request(config, model_id, min_deadline, session):
 
     return response_data, request_latency
 
-def check_and_reload_model(config, last_signal_time):
+def check_and_reload_model(config, last_signal_time, session):
     current_time = time.time()
     # Only proceed if it's been at least 600 seconds
     if current_time - last_signal_time >= config.reload_interval:
         response = post_request(config.signal_url + "/miner_signal", {
             "miner_id": config.miner_id,
             "options": {"exclude_sdxl": config.exclude_sdxl}
-        }, config.miner_id)
+        }, config.miner_id, session)
 
         # Process the response only if it's valid
         if response and response.status_code == 200:
@@ -233,7 +233,7 @@ def main(cuda_device_id):
     while True:
         config.miner_id = next(miner_ids_iter)
         try:
-            last_signal_time = check_and_reload_model(config, last_signal_time)
+            last_signal_time = check_and_reload_model(config, last_signal_time, session)
             executed = process_jobs(config, session)
         except Exception as e:
             logging.error("Error occurred:", exc_info=True)
