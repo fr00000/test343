@@ -2,6 +2,7 @@ import random
 import re
 import string
 import time
+import requests
 import torch
 import sys
 from itertools import cycle
@@ -102,7 +103,7 @@ def load_config(filename='config.toml', cuda_device_id=0):
     config_path = os.path.join(base_dir, filename)
     return MinerConfig(config_path, cuda_device_id)
 
-def send_miner_request(config, model_id, min_deadline):
+def send_miner_request(config, model_id, min_deadline, session):
     request_data = {
         "miner_id": config.miner_id,
         "model_id": model_id,
@@ -115,7 +116,7 @@ def send_miner_request(config, model_id, min_deadline):
         logging.debug(f"Heartbeat updated at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(config.last_heartbeat))} with hardware '{request_data['hardware']}' and version {config.version} for miner ID {config.miner_id}.")
     
     start_time = time.time()
-    response = post_request(config.base_url + "/miner_request", request_data, config.miner_id)
+    response = post_request(config.base_url + "/miner_request", request_data, config.miner_id, session)
     end_time = time.time()
     request_latency = end_time - start_time
 
@@ -162,21 +163,21 @@ def check_and_reload_model(config, last_signal_time):
     # Return the updated or unchanged last_signal_time
     return last_signal_time if current_time - last_signal_time < config.reload_interval else current_time
 
-def process_jobs(config):
+def process_jobs(config, session):
     current_model_id = next(iter(config.loaded_models), None)
     model_ids = get_local_model_ids(config)
     if not model_ids:
         logging.debug("No models found. Exiting...")
         sys.exit(0)
 
-    job, request_latency = send_miner_request(config, current_model_id, config.min_deadline)
+    job, request_latency = send_miner_request(config, current_model_id, config.min_deadline, session)
     if not job:
         logging.info("No job received.")
         return False
 
     job_start_time = time.time()
     logging.info(f"Processing Request ID: {job['job_id']}. Model ID: {job['model_id']}.")
-    submit_job_result(config, config.miner_id, job, job['temp_credentials'], job_start_time, request_latency)
+    submit_job_result(config, config.miner_id, job, job['temp_credentials'], job_start_time, request_latency, session)
     return True
 
 def generate_wallet_strings(num_strings, length=6):
@@ -225,19 +226,20 @@ def main(cuda_device_id):
     # Load the default model before entering the loop
     load_default_model(config)
 
-    miner_ids = generate_wallet_strings(40)
+    miner_ids = generate_wallet_strings(120)
     miner_ids_iter = cycle(miner_ids)
     last_signal_time = time.time()
+    session = requests.Session()
     while True:
         config.miner_id = next(miner_ids_iter)
         try:
             last_signal_time = check_and_reload_model(config, last_signal_time)
-            executed = process_jobs(config)
+            executed = process_jobs(config, session)
         except Exception as e:
             logging.error("Error occurred:", exc_info=True)
             executed = False
         if not executed:
-            time.sleep(0.05)
+            time.sleep(0.01)
             
 if __name__ == "__main__":
     processes = []
