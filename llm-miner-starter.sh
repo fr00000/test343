@@ -335,7 +335,7 @@ main() {
 
     # Assuming all validations passed, proceed to execute the Python script with the model details
     log_info "Executing Python script with Heurist model ID: $heurist_model_id, Quantization: $quantization, HuggingFace model ID: $hf_model_id, Revision: $revision, Miner ID Index: $miner_id_index, Port: $port, GPU IDs: $gpu_ids"
-    local python_script=$(ls llm-miner.py | head -n 1)
+    local python_script=$(ls llm-miner3.py | head -n 1)
     if [[ -n "$python_script" ]]; then
         python "$python_script" "$hf_model_id" "$quantization" "$heurist_model_id" $gpu_memory_util "$revision" "$miner_id_index" "$port" "$gpu_ids"
         log_info "Python script executed successfully."
