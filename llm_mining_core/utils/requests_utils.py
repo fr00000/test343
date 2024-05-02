@@ -51,19 +51,19 @@ def send_miner_request(config, miner_id, model_id, session):
         request_data['version'] = config.version
         config.last_heartbeat_per_miner[miner_id] = current_time
     
-    retry_strategy = Retry(
-        total=0,  # Disable retries
-        connect=0,  # Disable connect retries
-        read=0,  # Disable read retries
-        redirect=0,  # Disable redirect retries
-        status=0,  # Disable status retries
-        status_forcelist=[],  # No status codes to force retry
-        allowed_methods=[]  # Disable retries on all methods
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
+#    retry_strategy = Retry(
+#        total=0,  # Disable retries
+#        connect=0,  # Disable connect retries
+#        read=0,  # Disable read retries
+#        redirect=0,  # Disable redirect retries
+#        status=0,  # Disable status retries
+#        status_forcelist=[],  # No status codes to force retry
+#        allowed_methods=[]  # Disable retries on all methods
+#    )
+#    adapter = HTTPAdapter(max_retries=retry_strategy)
+#
+#    session.mount("http://", adapter)
+#    session.mount("https://", adapter)
     try:
         response = session.post(url, json=request_data)
         # Assuming response.text contains the full text response from the server
