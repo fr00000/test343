@@ -6,16 +6,19 @@ from .model_utils import execute_model
 
 def post_request(url, data, miner_id, session):
     try:
-        response = session.post(url, json=data)
+        response = session.post(url, json=data, timeout=1)
         logging.debug(f"Request sent to {url} with data {data} received response: {response.status_code}")
         # Directly return the response object
         return response
     except ValueError as ve:
         miner_id_info = f" for miner_id {miner_id}" if miner_id else ""
         logging.error(f"Failed to parse JSON response{miner_id_info}: {ve}")
-    except session.exceptions.RequestException as re:
+    except requests.exceptions.RequestException as re:
         miner_id_info = f" for miner_id {miner_id}" if miner_id else ""
         logging.error(f"Request failed{miner_id_info}: {re}")
+    except TimeoutError as te:
+        miner_id_info = f" for miner_id {miner_id}" if miner_id else ""
+        logging.error(f"Timed out{miner_id_info}: {ve}")
     return None
 
 def log_response(response, miner_id=None):
@@ -107,7 +110,7 @@ def submit_job_result(config, miner_id, job, temp_credentials, job_start_time, r
         # Log the compiled message
         logging.info(latencies_log)
         
-    except session.exceptions.RequestException as err:
+    except requests.exceptions.RequestException as err:
         logging.error(f"Error occurred during job submission: {err}")
 
 
