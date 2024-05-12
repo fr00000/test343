@@ -5,6 +5,7 @@ import io
 import gc
 import logging
 import time
+import random
 from diffusers import AutoencoderKL, DPMSolverMultistepScheduler, DiffusionPipeline, StableDiffusionPipeline
 from DeepCache import DeepCacheSDHelper
 from diffusers.models.attention_processor import AttnProcessor2_0
@@ -14,6 +15,7 @@ from vendor.lpw_stable_diffusion import StableDiffusionLongPromptWeightingPipeli
 def get_local_model_ids(config):
     local_files = os.listdir(config.base_dir)
     local_model_ids = [model['name'] for model in config.model_configs.values() if model['name'] + ".safetensors" in local_files]
+    random.shuffle(local_model_ids)
     return local_model_ids
 
 def load_model(config, model_id):
