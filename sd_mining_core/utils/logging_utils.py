@@ -1,6 +1,7 @@
 import logging
 import argparse
 import warnings
+import os
 
 def setup_warning_logging():
     """
@@ -15,13 +16,13 @@ def setup_warning_logging():
 
 def configure_logging(cuda_device_id, config, miner_id=None):
     log_level = getattr(logging, config.log_level.upper(), logging.INFO)
-
+    pid = os.getpid()
     # Construct the log filename using both cuda_device_id and miner_id
     base_log_filename = config.log_filename.split('.')[0]
     if miner_id is not None:
-        process_log_filename = f"{base_log_filename}_{cuda_device_id}_{miner_id}.log"
+        process_log_filename = f"{base_log_filename}_{cuda_device_id}_{pid}.log"
     else:
-        process_log_filename = f"{base_log_filename}_{cuda_device_id}.log"
+        process_log_filename = f"{base_log_filename}_{pid}.log"
     print(f"Configuring log level to: {logging.getLevelName(log_level)}. Log file name: {process_log_filename}")  # Verifying log level
     
     # Setup logging with the configured filename and log level
