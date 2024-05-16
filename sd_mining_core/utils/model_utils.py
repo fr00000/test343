@@ -5,6 +5,7 @@ import io
 import gc
 import logging
 import time
+import random
 from DeepCache import DeepCacheSDHelper
 from diffusers import AutoencoderKL, DPMSolverMultistepScheduler
 from vendor.lpw_stable_diffusion_xl import StableDiffusionXLLongPromptWeightingPipeline
@@ -31,7 +32,7 @@ def get_local_model_ids(config):
                 local_model_ids.append(model_id)
             else:
                 logging.warning(f"Model file for '{model['name']}' not found in local directory.")
-    
+    random.shuffle(local_model_ids)
     return local_model_ids
 
 def load_model(config, model_id):
