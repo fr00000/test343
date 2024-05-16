@@ -76,8 +76,8 @@ def load_model(config, model_id):
     
     helper = DeepCacheSDHelper(pipe=pipe)
     helper.set_params(
-        cache_interval=5,
-        cache_branch_id=1,
+        cache_interval=3,
+        cache_branch_id=0,
         )
     helper.enable()
     
