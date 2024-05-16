@@ -147,24 +147,27 @@ def load_default_model(config):
             logging.info(f"Default model {default_model_id} loaded successfully.")
 
 def reload_model(config, model_id_from_signal):
+    # Check if the model to load is already loaded
+    base_model_id_from_signal = config.model_configs.get(model_id_from_signal, {}).get('base', model_id_from_signal)
+    if base_model_id_from_signal in config.loaded_models:
+        logging.info(f"Model {model_id_from_signal} is already loaded.")
+        return
+
+    # Unload the first loaded model if necessary
     if config.loaded_models:
         model_to_unload = next(iter(config.loaded_models))
-        # Check if the model has associated LoRa weights
-        for lora_id, loaded_pipe in config.loaded_loras.items():
+        # Unload associated LoRa weights if any
+        for lora_id, loaded_pipe in list(config.loaded_loras.items()):
             if loaded_pipe == config.loaded_models[model_to_unload]:
                 unload_lora_weights(config, loaded_pipe, lora_id)
                 logging.info(f"Unloaded LoRa weights {lora_id} associated with model {model_to_unload}")
-                break
         unload_model(config, model_to_unload)
         logging.info(f"Unloaded model {model_to_unload} to make space for {model_id_from_signal}")
 
+    # Load the requested model
     current_model, _ = load_model(config, model_id_from_signal)
-    base_model_id_from_signal = config.model_configs[model_id_from_signal]['base'] if 'base' in config.model_configs[model_id_from_signal] else model_id_from_signal
     config.loaded_models[base_model_id_from_signal] = current_model
-    if base_model_id_from_signal != model_id_from_signal:
-        logging.info(f"Received model {model_id_from_signal} (base: {base_model_id_from_signal}) loaded successfully.")
-    else:
-        logging.info(f"Received model {model_id_from_signal} loaded successfully.")
+    logging.info(f"Model {model_id_from_signal} (base: {base_model_id_from_signal}) loaded successfully.")
 
 def execute_model(config, model_id, prompt, neg_prompt, height, width, num_iterations, guidance_scale, seed):
     try:
