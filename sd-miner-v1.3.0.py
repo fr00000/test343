@@ -114,7 +114,8 @@ def generate_miner_ids(num_strings, length=6):
         new_string = wallet_address + "-" + alphanumeric_string
         wallet_strings_list.append(new_string)
 
-    return random.shuffle(wallet_strings_list)
+    random.shuffle(wallet_strings_list)
+    return wallet_string_list
 
 def load_config(filename='config.toml', cuda_device_id=0):
     base_dir = os.path.dirname(os.path.abspath(__file__))
