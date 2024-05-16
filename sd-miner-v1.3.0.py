@@ -10,6 +10,7 @@ import signal
 import threading
 import subprocess
 import random
+from datetime import datetime
 from pathlib import Path
 from itertools import cycle
 from dotenv import load_dotenv
@@ -153,7 +154,8 @@ def send_miner_request(config, model_id, min_deadline,session):
         if response_data and 'job_id' in response_data and 'model_id' in response_data:
             job_id = response_data['job_id']
             model_id = response_data['model_id']
-            print(f"Processing Request ID: {job_id}. Model ID: {model_id}.")
+            time = datetime.now()
+            print(f"Processing Request ID: {job_id}. Model ID: {model_id}. Time: {time}")
     except Exception as e:
         logging.error(f"Failed to process response data: {e}")
 
