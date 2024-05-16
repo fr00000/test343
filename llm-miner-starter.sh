@@ -181,7 +181,7 @@ install_with_spinner() {
 # Example usage for your dependency installation function
 install_dependencies() {
     log_info "Installing Python dependencies..."
-    local dependencies=("vllm" "python-dotenv" "toml" "openai" "triton" "wheel" "packaging" "psutil" "flash-attn")
+    local dependencies=("vllm" "python-dotenv" "toml" "openai" "triton==2.1.0" "wheel" "packaging" "psutil" "web3" "mnemonic" "prettytable" "flash-attn")
 
     for dep in "${dependencies[@]}"; do
         if ! install_with_spinner "$dep"; then
@@ -221,6 +221,30 @@ fetchModelDetails() {
     echo "$size_gb $quantization $hf_model_id $revision"
 }
 
+validateMinerId() {
+    local miner_id=$1
+    local config_file=$2
+    local abi_file=$3
+
+    # Call the WalletGenerator class directly
+    python -c "
+from auth.generator import WalletGenerator
+
+config_file = '$config_file'
+abi_file = '$abi_file'
+miner_id = '$miner_id'
+
+wallet_generator = WalletGenerator(config_file, abi_file)
+wallet_generator.validate_miner_keys([miner_id])
+"
+    local exit_code=$?
+
+    if [ $exit_code -ne 0 ]; then
+        log_error "Wallet validation failed for Miner ID: $miner_id"
+        exit 1
+    fi
+}
+
 # Validate GPU VRAM is enough to host expected model
 validateVram() {
     local size_gb="$1"
@@ -256,14 +280,14 @@ validateVram() {
     # Determine GPU memory utilization based on model name and available VRAM
     if [[ "$heurist_model_id" == *"mixtral-8x7b-gptq"* ]] && [ "$available_mb" -gt 32000 ]; then
         local gpu_memory_util=$(echo "scale=2; (32000-1000)/$available_mb" | bc)
-    elif [[ "$heurist_model_id" == *"yi-34b-gptq"* ]] && [ "$available_mb" -gt 38000 ]; then
-        local gpu_memory_util=$(echo "scale=2; (38000-1000)/$available_mb" | bc)
-    elif [[ "$heurist_model_id" == *"70b"* ]] && [ "$available_mb" -gt 38000 ]; then
-        local gpu_memory_util=$(echo "scale=2; (38000-1000)/$available_mb" | bc)
-    elif [[ "$heurist_model_id" == *"8b"* ]] && [ "$available_mb" -gt 19000 ]; then
-        local gpu_memory_util=$(echo "scale=2; (24000-1000)/$available_mb" | bc)
+    elif [[ "$heurist_model_id" == *"yi-34b-gptq"* ]] && [ "$available_mb" -gt 40000 ]; then
+        local gpu_memory_util=$(echo "scale=2; (40000-1000)/$available_mb" | bc)
+    elif [[ "$heurist_model_id" == *"70b"* ]] && [ "$available_mb" -gt 44000 ]; then
+        local gpu_memory_util=$(echo "scale=2; (44000-1000)/$available_mb" | bc)
+    elif [[ "$heurist_model_id" == *"8b"* ]] && [ "$available_mb" -gt 18500 ]; then
+        local gpu_memory_util=$(echo "scale=2; (20500-1000)/$available_mb" | bc)
     elif [[ "$heurist_model_id" == *"pro-mistral-7b"* ]] && [ "$available_mb" -gt 18000 ]; then
-        local gpu_memory_util=$(echo "scale=2; (24000-1000)/$available_mb" | bc)
+        local gpu_memory_util=$(echo "scale=2; (20500-1000)/$available_mb" | bc)
     else
         local gpu_memory_util=$(echo "scale=2; (12000-1000)/$available_mb" | bc) # Default value or handle other cases as needed
     fi
@@ -323,6 +347,10 @@ main() {
         esac
     done
 
+    # Extract the miner ID from the .env file based on the miner_id_index
+    miner_id=$(sed -n "s/^MINER_ID_$miner_id_index=//p" .env)
+    validateMinerId "$miner_id" "config.toml" "auth/abi.json"
+
     # Check if the model details were not properly fetched
     if [ -z "$size_gb" ] || [ -z "$quantization" ] || [ -z "$hf_model_id" ] || [ -z "$revision" ]; then
         log_error "Failed to fetch model details. Exiting."
@@ -335,7 +363,7 @@ main() {
 
     # Assuming all validations passed, proceed to execute the Python script with the model details
     log_info "Executing Python script with Heurist model ID: $heurist_model_id, Quantization: $quantization, HuggingFace model ID: $hf_model_id, Revision: $revision, Miner ID Index: $miner_id_index, Port: $port, GPU IDs: $gpu_ids"
-    local python_script=$(ls llm-miner3.py | head -n 1)
+    local python_script=$(ls llm-miner-*.py | head -n 1)
     if [[ -n "$python_script" ]]; then
         python "$python_script" "$hf_model_id" "$quantization" "$heurist_model_id" $gpu_memory_util "$revision" "$miner_id_index" "$port" "$gpu_ids"
         log_info "Python script executed successfully."
