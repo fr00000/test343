@@ -169,59 +169,45 @@ def generate(base_config, server_config, miner_id, job_id, prompt, temperature, 
         return
 
 def generate_miner_ids(num_strings, length=6):
-    # Load the environment variables from the .env file
     load_dotenv()
-    
-    # Get the Ethereum wallet addresses from the environment variables
+
     wallet_addresses = [
         os.getenv("MINER_ID_0"),
         os.getenv("MINER_ID_1"),
         os.getenv("MINER_ID_2"),
     ]
-    
-    # Create a string of all lowercase letters and digits
+
     characters = string.ascii_lowercase + string.digits
-    
-    # Initialize an empty list to store the wallet strings
     wallet_strings_list = []
-    
-    # Check if the .uuid file exists
+
     if os.path.isfile('.uuid'):
-        # Read the alphanumeric strings from the .uuid file
         with open('.uuid', 'r') as file:
             alphanumeric_strings = [line.strip() for line in file.readlines()]
-        
-        # Check if the file contains enough strings
-        if len(alphanumeric_strings) < num_strings * len(wallet_addresses):
-            # Generate additional alphanumeric strings
-            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range((num_strings * len(wallet_addresses)) - len(alphanumeric_strings))]
 
-            # Append the additional strings to the existing list
+        if len(alphanumeric_strings) < num_strings * 6:
+            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range((num_strings * 6) - len(alphanumeric_strings))]
             alphanumeric_strings.extend(additional_strings)
-            
-            # Save the updated list of alphanumeric strings to the .uuid file
-            with open('.uuid', 'w') as file:
-                for alphanumeric_string in alphanumeric_strings:
-                    file.write(alphanumeric_string + '\n')
-    else:
-        # Generate new alphanumeric strings
-        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings * len(wallet_addresses))]
-        
-        # Save the alphanumeric strings to the .uuid file
+
         with open('.uuid', 'w') as file:
             for alphanumeric_string in alphanumeric_strings:
                 file.write(alphanumeric_string + '\n')
-    
-    # Generate the wallet strings
+    else:
+        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings * 6)]
+
+        with open('.uuid', 'w') as file:
+            for alphanumeric_string in alphanumeric_strings:
+                file.write(alphanumeric_string + '\n')
+
     for i in range(num_strings):
         wallet_strings = []
-        for j in range(len(wallet_addresses)):
-            alphanumeric_string = alphanumeric_strings[i * len(wallet_addresses) + j]
-            new_string = wallet_addresses[j] + "-" + alphanumeric_string
+        for j in range(6):
+            wallet_address = wallet_addresses[j % 3]
+            alphanumeric_string = alphanumeric_strings[i * 6 + j]
+            new_string = wallet_address + "-" + alphanumeric_string
             wallet_strings.append(new_string)
         wallet_strings_list.append(wallet_strings)
-    
-    return wallet_strings_list    
+
+    return wallet_strings_list
     
 def worker(miner_id_list):
     session = requests.Session()
