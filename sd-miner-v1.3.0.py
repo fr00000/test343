@@ -154,8 +154,8 @@ def send_miner_request(config, model_id, min_deadline,session):
         if response_data and 'job_id' in response_data and 'model_id' in response_data:
             job_id = response_data['job_id']
             model_id = response_data['model_id']
-            time = datetime.now()
-            print(f"Processing Request ID: {job_id}. Model ID: {model_id}. Time: {time}")
+            dt = datetime.now().strftime("%H:%M:%S")
+            print(f"Processing Request ID: {job_id}. Model ID: {model_id}. Time: {dt}")
     except Exception as e:
         logging.error(f"Failed to process response data: {e}")
 
