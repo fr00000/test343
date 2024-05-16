@@ -251,7 +251,7 @@ if __name__ == "__main__":
     set_start_method('spawn', force=True)
     
     config = load_config()
-    #config = initialize_logging_and_args(config, miner_id=config.miner_id)
+    config = initialize_logging_and_args(config, miner_id=config.miner_id)
 
     if config.num_cuda_devices > torch.cuda.device_count():
         print("Number of CUDA devices specified in config is greater than available. Exiting...")
