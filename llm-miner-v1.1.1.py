@@ -254,7 +254,7 @@ def worker(miner_id_list):
                 if seed == -1: # Handling for seed if specified as -1
                     seed = None
                 stop = base_config.stop_words # Assuming stop_words are defined earlier in the script
-                generate(base_config, server_config, miner_id, job['job_id'], prompt, temperature, max_tokens, seed, stop, use_stream, model_id, request_latency)
+                generate(base_config, server_config, miner_id, job['job_id'], prompt, temperature, max_tokens, seed, stop, use_stream, model_id, request_latency, session)
                 job_end_time = time.time()  # Record the end time
                 total_processing_time = job_end_time - job_start_time
                 if total_processing_time > base_config.llm_timeout_seconds:
