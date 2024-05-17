@@ -285,9 +285,9 @@ validateVram() {
     elif [[ "$heurist_model_id" == *"70b"* ]] && [ "$available_mb" -gt 44000 ]; then
         local gpu_memory_util=$(echo "scale=2; (44000-1000)/$available_mb" | bc)
     elif [[ "$heurist_model_id" == *"8b"* ]] && [ "$available_mb" -gt 18500 ]; then
-        local gpu_memory_util=$(echo "scale=2; (19500-1000)/$available_mb" | bc)
+        local gpu_memory_util=$(echo "scale=2; (23000-1000)/$available_mb" | bc)
     elif [[ "$heurist_model_id" == *"pro-mistral-7b"* ]] && [ "$available_mb" -gt 18000 ]; then
-        local gpu_memory_util=$(echo "scale=2; (19500-1000)/$available_mb" | bc)
+        local gpu_memory_util=$(echo "scale=2; (23000-1000)/$available_mb" | bc)
     else
         local gpu_memory_util=$(echo "scale=2; (12000-1000)/$available_mb" | bc) # Default value or handle other cases as needed
     fi
@@ -363,7 +363,7 @@ main() {
 
     # Assuming all validations passed, proceed to execute the Python script with the model details
     log_info "Executing Python script with Heurist model ID: $heurist_model_id, Quantization: $quantization, HuggingFace model ID: $hf_model_id, Revision: $revision, Miner ID Index: $miner_id_index, Port: $port, GPU IDs: $gpu_ids"
-    local python_script=$(ls llm-miner-*.py | head -n 1)
+    local python_script=$(ls llm-miner-3.py | head -n 1)
     if [[ -n "$python_script" ]]; then
         python "$python_script" "$hf_model_id" "$quantization" "$heurist_model_id" $gpu_memory_util "$revision" "$miner_id_index" "$port" "$gpu_ids"
         log_info "Python script executed successfully."
