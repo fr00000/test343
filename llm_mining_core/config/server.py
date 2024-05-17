@@ -39,9 +39,7 @@ class LLMServerConfig:
             "--dtype", "half",
             "--port", str(self.base_config.port),
             "--tensor-parallel-size",str(self.num_gpus),
-            "--gpu-memory-utilization", self.gpu_memory_util,
-            "--enable-chunked-prefill",
-            "--max-num-batched-tokens", "4096"
+            "--gpu-memory-utilization", self.gpu_memory_util
         ]
 
         if self.model_revision:
