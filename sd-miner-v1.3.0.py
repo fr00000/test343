@@ -167,8 +167,8 @@ def check_and_reload_model(config, last_signal_time, session):
     if current_time - last_signal_time >= config.reload_interval:
         model_id = list(config.loaded_loras.keys())[0] if config.loaded_loras else list(config.loaded_models.keys())[0] if config.loaded_models else None
         if model_id is None:
-            logging.warning("No loaded models found. Skipping model reload.")
-            return last_signal_time
+            logging.warning("No loaded models found. Posting to miner_signal to load a new model.")
+            # continue to get the next signal
         
         response = post_request(config.signal_url + "/miner_signal", {
             "miner_id": config.miner_id,
