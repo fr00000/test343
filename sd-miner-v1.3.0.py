@@ -210,6 +210,22 @@ def process_jobs(config, session):
     submit_job_result(config, config.miner_id, job, job['temp_credentials'], job_start_time, request_latency, session)
     return True
 
+def periodic_send_model_info_signal(config, miner_ids):
+    session = requests.Session
+    while True:
+        model_id = list(config.loaded_loras.keys())[0] if config.loaded_loras else list(config.loaded_models.keys())[0] if config.loaded_models else None
+        for i in range(120):
+            miner_id = miner_ids[i]
+            response = post_request(config.signal_url + "/miner_signal", {
+            "miner_id": miner_id,
+            "model_type": "SD",
+            "model_id": model_id,
+            "version": config.version, # format is like "sd-v1.2.0"
+            "options": {"exclude_sdxl": config.exclude_sdxl}
+        }, miner_id, session)
+        time.sleep(600) # Adjust the sleep interval based on your desired frequency
+        
+        
 def main(cuda_device_id):
 
     torch.cuda.set_device(cuda_device_id)
@@ -227,6 +243,9 @@ def main(cuda_device_id):
     miner_ids = generate_miner_ids(120)
     miner_ids_iter = cycle(miner_ids)
     session = requests.Session()
+    
+    periodic_thread = threading.Thread(target=periodic_send_model_info_signal, args=(config, miner_ids))
+    periodic_thread.start()
 
     while True:
         config.miner_id = next(miner_ids_iter)
