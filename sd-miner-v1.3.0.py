@@ -209,19 +209,18 @@ def process_jobs(config, session):
     submit_job_result(config, config.miner_id, job, job['temp_credentials'], job_start_time, request_latency, session)
     return True
 
-def periodic_send_model_info_signal(config, miner_ids):
-    session = requests.Session
+def periodic_send_model_info_signal(thread_config, miner_ids):
+    s = requests.Session()
     while True:
-        model_id = list(config.loaded_loras.keys())[0] if config.loaded_loras else list(config.loaded_models.keys())[0] if config.loaded_models else None
-        for i in range(120):
-            miner_id = miner_ids[i]
-            response = post_request(config.signal_url + "/miner_signal", {
-            "miner_id": miner_id,
-            "model_type": "SD",
-            "version": config.version, # format is like "sd-v1.2.0"
-            "options": {"exclude_sdxl": config.exclude_sdxl}
-        }, miner_id, session)
-        time.sleep(500) # Adjust the sleep interval based on your desired frequency
+        for j in range(120):
+            miner_id = miner_ids[j]
+            response = post_request("https://d2k7cjzmjgpm6p.cloudfront.net/prod/miner_signal", {
+                "miner_id": miner_id,
+                "model_type": "SD",
+                "version": thread_config.version,  # format is like "sd-v1.2.0"
+                "options": {"exclude_sdxl": thread_config.exclude_sdxl}
+            }, miner_id, s)
+        time.sleep(600)  # Adjust the sleep interval based on your desired frequency
         
         
 def main(cuda_device_id):
