@@ -173,7 +173,6 @@ def check_and_reload_model(config, last_signal_time, session):
         response = post_request(config.signal_url + "/miner_signal", {
             "miner_id": config.miner_id,
             "model_type": "SD",
-            "model_id": model_id,
             "version": config.version, # format is like "sd-v1.2.0"
             "options": {"exclude_sdxl": config.exclude_sdxl}
         }, config.miner_id, session)
@@ -219,11 +218,10 @@ def periodic_send_model_info_signal(config, miner_ids):
             response = post_request(config.signal_url + "/miner_signal", {
             "miner_id": miner_id,
             "model_type": "SD",
-            "model_id": model_id,
             "version": config.version, # format is like "sd-v1.2.0"
             "options": {"exclude_sdxl": config.exclude_sdxl}
         }, miner_id, session)
-        time.sleep(600) # Adjust the sleep interval based on your desired frequency
+        time.sleep(500) # Adjust the sleep interval based on your desired frequency
         
         
 def main(cuda_device_id):
