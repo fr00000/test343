@@ -84,39 +84,39 @@ class MinerConfig(BaseConfig):
             print("ERROR: miner_id not found in .env. Exiting...")
             raise ValueError("miner_id not found in .env.")
 
-def generate_miner_ids_old(num_strings, length=6):
-    load_dotenv()
-    wallet_addresses = [
-        os.getenv("MINER_ID_0"),
-        os.getenv("MINER_ID_1"),
-        os.getenv("MINER_ID_2"),
-    ]
-    characters = string.ascii_lowercase + string.digits
-    wallet_strings_list = []
+# def generate_miner_ids_old(num_strings, length=6):
+#     load_dotenv()
+#     wallet_addresses = [
+#         os.getenv("MINER_ID_0"),
+#         os.getenv("MINER_ID_1"),
+#         os.getenv("MINER_ID_2"),
+#     ]
+#     characters = string.ascii_lowercase + string.digits
+#     wallet_strings_list = []
 
-    if os.path.isfile('.uuid'):
-        with open('.uuid', 'r') as file:
-            alphanumeric_strings = [line.strip() for line in file.readlines()]
-        if len(alphanumeric_strings) < num_strings:
-            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings - len(alphanumeric_strings))]
-            alphanumeric_strings.extend(additional_strings)
-        with open('.uuid', 'w') as file:
-            for alphanumeric_string in alphanumeric_strings:
-                file.write(alphanumeric_string + '\n')
-    else:
-        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings)]
-        with open('.uuid', 'w') as file:
-            for alphanumeric_string in alphanumeric_strings:
-                file.write(alphanumeric_string + '\n')
+#     if os.path.isfile('.uuid'):
+#         with open('.uuid', 'r') as file:
+#             alphanumeric_strings = [line.strip() for line in file.readlines()]
+#         if len(alphanumeric_strings) < num_strings:
+#             additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings - len(alphanumeric_strings))]
+#             alphanumeric_strings.extend(additional_strings)
+#         with open('.uuid', 'w') as file:
+#             for alphanumeric_string in alphanumeric_strings:
+#                 file.write(alphanumeric_string + '\n')
+#     else:
+#         alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings)]
+#         with open('.uuid', 'w') as file:
+#             for alphanumeric_string in alphanumeric_strings:
+#                 file.write(alphanumeric_string + '\n')
 
-    for i in range(num_strings):
-        wallet_address = wallet_addresses[i % len(wallet_addresses)]
-        alphanumeric_string = alphanumeric_strings[i]
-        new_string = wallet_address + "-" + alphanumeric_string
-        wallet_strings_list.append(new_string)
+#     for i in range(num_strings):
+#         wallet_address = wallet_addresses[i % len(wallet_addresses)]
+#         alphanumeric_string = alphanumeric_strings[i]
+#         new_string = wallet_address + "-" + alphanumeric_string
+#         wallet_strings_list.append(new_string)
 
-    random.shuffle(wallet_strings_list)
-    return wallet_strings_list
+#     random.shuffle(wallet_strings_list)
+#     return wallet_strings_list
 
 def generate_miner_ids():
     if os.path.exists("miner_ids.txt"):
@@ -293,6 +293,7 @@ def main(cuda_device_id):
 
     last_signal_time = time.time()
     miner_ids = generate_miner_ids()
+    random.shuffle(miner_ids)
     miner_ids_iter = cycle(miner_ids)
     session = requests.Session()
     
