@@ -84,7 +84,7 @@ class MinerConfig(BaseConfig):
             print("ERROR: miner_id not found in .env. Exiting...")
             raise ValueError("miner_id not found in .env.")
 
-def generate_miner_ids(num_strings, length=6):
+def generate_miner_ids_old(num_strings, length=6):
     load_dotenv()
     wallet_addresses = [
         os.getenv("MINER_ID_0"),
@@ -118,60 +118,60 @@ def generate_miner_ids(num_strings, length=6):
     random.shuffle(wallet_strings_list)
     return wallet_strings_list
 
-# def generate_miner_ids():
-#     if os.path.exists("miner_ids.txt"):
-#         with open("miner_ids.txt", "r") as file:
-#             miner_ids = [line.strip() for line in file]
+def generate_miner_ids():
+    if os.path.exists("miner_ids.txt"):
+        with open("miner_ids.txt", "r") as file:
+            miner_ids = [line.strip() for line in file]
         
-#         if len(miner_ids) < 100:
-#             remaining_count = 100 - len(miner_ids)
+        if len(miner_ids) < 100:
+            remaining_count = 100 - len(miner_ids)
             
-#             with open("wallets.txt", "r") as file:
-#                 wallet_addresses = [line.strip() for line in file]
+            with open("wallets.txt", "r") as file:
+                wallet_addresses = [line.strip() for line in file]
             
-#             for _ in range(remaining_count):
-#                 address = random.choice(wallet_addresses)
+            for _ in range(remaining_count):
+                address = random.choice(wallet_addresses)
                 
-#                 tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
                 
-#                 miner_id = address + "-" + tag
+                miner_id = address + "-" + tag
                 
-#                 while miner_id in miner_ids:
-#                     tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-#                     miner_id = address + "-" + tag
+                while miner_id in miner_ids:
+                    tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                    miner_id = address + "-" + tag
                 
-#                 miner_ids.append(miner_id)
+                miner_ids.append(miner_id)
             
-#             with open("miner_ids.txt", "a") as file:
-#                 for miner_id in miner_ids[-remaining_count:]:
-#                     file.write(miner_id + "\n")
+            with open("miner_ids.txt", "a") as file:
+                for miner_id in miner_ids[-remaining_count:]:
+                    file.write(miner_id + "\n")
         
-#         return miner_ids
-#     else:
-#         with open("wallets.txt", "r") as file:
-#             miner_ids = []
+        return miner_ids
+    else:
+        with open("wal.txt", "r") as file:
+            miner_ids = []
 
-#             wallet_addresses = file.readlines()[:50]
+            wallet_addresses = file.readlines()[:50]
 
-#             for address in wallet_addresses:
-#                 address = address.strip()
+            for address in wallet_addresses:
+                address = address.strip()
                 
-#                 for _ in range(2):
-#                     tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                for _ in range(2):
+                    tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
                     
-#                     miner_id = address + "-" + tag
+                    miner_id = address + "-" + tag
                     
-#                     while miner_id in miner_ids:
-#                         tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-#                         miner_id = address + "-" + tag
+                    while miner_id in miner_ids:
+                        tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                        miner_id = address + "-" + tag
                     
-#                     miner_ids.append(miner_id)
+                    miner_ids.append(miner_id)
 
-#         with open("miner_ids.txt", "w") as file:
-#             for miner_id in miner_ids:
-#                 file.write(miner_id + "\n")
+        with open("miner_ids.txt", "w") as file:
+            for miner_id in miner_ids:
+                file.write(miner_id + "\n")
                 
-#         return miner_ids
+        return miner_ids
 
 def load_config(filename='config.toml', cuda_device_id=0):
     base_dir = os.path.dirname(os.path.abspath(__file__))
