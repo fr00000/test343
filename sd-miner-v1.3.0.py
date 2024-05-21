@@ -267,7 +267,7 @@ def process_jobs(config, session):
 def periodic_send_model_info_signal(thread_config, miner_ids):
     s = requests.Session()
     while True:
-        for j in range(120):
+        for j in range(len(miner_ids)):
             miner_id = miner_ids[j]
             response = post_request("https://d2k7cjzmjgpm6p.cloudfront.net/prod/miner_signal", {
                 "miner_id": miner_id,
@@ -292,7 +292,7 @@ def main(cuda_device_id):
     load_default_model(config)
 
     last_signal_time = time.time()
-    miner_ids = generate_miner_ids(120)
+    miner_ids = generate_miner_ids()
     miner_ids_iter = cycle(miner_ids)
     session = requests.Session()
     
