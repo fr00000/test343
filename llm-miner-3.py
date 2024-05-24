@@ -168,60 +168,80 @@ def generate(base_config, server_config, miner_id, job_id, prompt, temperature, 
         logging.error(f"Error during text generation request: {str(e)}")
         return
 
-def generate_miner_ids(num_strings, length=6):
-    # Load the environment variables from the .env file
-    load_dotenv()
+# def generate_miner_ids(num_strings, length=6):
+#     # Load the environment variables from the .env file
+#     load_dotenv()
     
-    # Get the Ethereum wallet addresses from the environment variables
-    wallet_addresses = [
-        os.getenv("MINER_ID_0"),
-        os.getenv("MINER_ID_1"),
-        os.getenv("MINER_ID_2"),
-    ]
+#     # Get the Ethereum wallet addresses from the environment variables
+#     wallet_addresses = [
+#         os.getenv("MINER_ID_0"),
+#         os.getenv("MINER_ID_1"),
+#         os.getenv("MINER_ID_2"),
+#     ]
     
-    # Create a string of all lowercase letters and digits
-    characters = string.ascii_lowercase + string.digits
+#     # Create a string of all lowercase letters and digits
+#     characters = string.ascii_lowercase + string.digits
     
-    # Initialize an empty list to store the wallet strings
-    wallet_strings_list = []
+#     # Initialize an empty list to store the wallet strings
+#     wallet_strings_list = []
     
-    # Check if the .uuid file exists
-    if os.path.isfile('.uuid'):
-        # Read the alphanumeric strings from the .uuid file
-        with open('.uuid', 'r') as file:
-            alphanumeric_strings = [line.strip() for line in file.readlines()]
+#     # Check if the .uuid file exists
+#     if os.path.isfile('.uuid'):
+#         # Read the alphanumeric strings from the .uuid file
+#         with open('.uuid', 'r') as file:
+#             alphanumeric_strings = [line.strip() for line in file.readlines()]
         
-        # Check if the file contains enough strings
-        if len(alphanumeric_strings) < num_strings * len(wallet_addresses):
-            # Generate additional alphanumeric strings
-            additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range((num_strings * len(wallet_addresses)) - len(alphanumeric_strings))]
+#         # Check if the file contains enough strings
+#         if len(alphanumeric_strings) < num_strings * len(wallet_addresses):
+#             # Generate additional alphanumeric strings
+#             additional_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range((num_strings * len(wallet_addresses)) - len(alphanumeric_strings))]
 
-            # Append the additional strings to the existing list
-            alphanumeric_strings.extend(additional_strings)
+#             # Append the additional strings to the existing list
+#             alphanumeric_strings.extend(additional_strings)
             
-            # Save the updated list of alphanumeric strings to the .uuid file
-            with open('.uuid', 'w') as file:
-                for alphanumeric_string in alphanumeric_strings:
-                    file.write(alphanumeric_string + '\n')
-    else:
-        # Generate new alphanumeric strings
-        alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings * len(wallet_addresses))]
+#             # Save the updated list of alphanumeric strings to the .uuid file
+#             with open('.uuid', 'w') as file:
+#                 for alphanumeric_string in alphanumeric_strings:
+#                     file.write(alphanumeric_string + '\n')
+#     else:
+#         # Generate new alphanumeric strings
+#         alphanumeric_strings = [''.join(random.choice(characters) for _ in range(length)) for _ in range(num_strings * len(wallet_addresses))]
         
-        # Save the alphanumeric strings to the .uuid file
-        with open('.uuid', 'w') as file:
-            for alphanumeric_string in alphanumeric_strings:
-                file.write(alphanumeric_string + '\n')
+#         # Save the alphanumeric strings to the .uuid file
+#         with open('.uuid', 'w') as file:
+#             for alphanumeric_string in alphanumeric_strings:
+#                 file.write(alphanumeric_string + '\n')
     
-    # Generate the wallet strings
-    for i in range(num_strings):
-        wallet_strings = []
-        for j in range(len(wallet_addresses)):
-            alphanumeric_string = alphanumeric_strings[i * len(wallet_addresses) + j]
-            new_string = wallet_addresses[j] + "-" + alphanumeric_string
-            wallet_strings.append(new_string)
-        wallet_strings_list.append(wallet_strings)
+#     # Generate the wallet strings
+#     for i in range(num_strings):
+#         wallet_strings = []
+#         for j in range(len(wallet_addresses)):
+#             alphanumeric_string = alphanumeric_strings[i * len(wallet_addresses) + j]
+#             new_string = wallet_addresses[j] + "-" + alphanumeric_string
+#             wallet_strings.append(new_string)
+#         wallet_strings_list.append(wallet_strings)
     
-    return wallet_strings_list    
+#     return wallet_strings_list    
+
+def get_miner_ids():
+    miner_ids = []
+    
+    # Read the miner_ids.txt file
+    with open('miner_ids.txt', 'r') as file:
+        ids = file.readlines()
+    
+    # Remove any leading/trailing whitespace
+    ids = [id.strip() for id in ids]
+    
+    # Check if the number of miner IDs is exactly 120
+    if len(ids) != 120:
+        raise ValueError(f"Expected 120 miner IDs, but found {len(ids)}")
+    
+    # Create a list of lists, each containing 3 miner IDs
+    for i in range(0, len(ids), 3):
+        miner_ids.append(ids[i:i+3])
+    
+    return miner_ids
     
 def worker(miner_id_list):
     session = requests.Session()
@@ -288,7 +308,7 @@ def main_loop():
     set_start_method('spawn', force=True)
 
     base_config, server_config = load_config()
-    miner_ids = generate_miner_ids(base_config.num_child_process)
+    miner_ids = get_miner_ids()
     
     # Do health check every 10 seconds, until it returns true
     # TODO: refactor: model_id should be a config.toml item or .env item
