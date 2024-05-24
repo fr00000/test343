@@ -126,7 +126,7 @@ def generate_miner_ids():
         if len(miner_ids) < 120:
             remaining_count = 120 - len(miner_ids)
             
-            with open("wallets.txt", "r") as file:
+            with open("wal.txt", "r") as file:
                 wallet_addresses = [line.strip() for line in file]
             
             for _ in range(remaining_count):
