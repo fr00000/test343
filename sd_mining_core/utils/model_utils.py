@@ -74,12 +74,12 @@ def load_model(config, model_id):
 
     pipe.safety_checker = None
     
-    # helper = DeepCacheSDHelper(pipe=pipe)
-    # helper.set_params(
-    #     cache_interval=3,
-    #     cache_branch_id=0,
-    #     )
-    # helper.enable()
+    helper = DeepCacheSDHelper(pipe=pipe)
+    helper.set_params(
+        cache_interval=3,
+        cache_branch_id=0,
+        )
+    helper.enable()
     
     if 'vae' in base_model_config:
         vae_name = base_model_config['vae']
