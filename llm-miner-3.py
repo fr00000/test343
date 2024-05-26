@@ -234,12 +234,12 @@ def get_miner_ids():
     ids = [id.strip() for id in ids]
     
     # Check if the number of miner IDs is exactly 120
-    if len(ids) != 120:
+    if len(ids) != 80:
         raise ValueError(f"Expected 120 miner IDs, but found {len(ids)}")
     
     # Create a list of lists, each containing 3 miner IDs
-    for i in range(0, len(ids), 3):
-        miner_ids.append(ids[i:i+3])
+    for i in range(0, len(ids), 2):
+        miner_ids.append(ids[i:i+2])
     
     return miner_ids
     
