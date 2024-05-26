@@ -51,7 +51,7 @@ def read_wallet_addresses_from_file(file_path):
         addresses = file.read().splitlines()
     return addresses
 
-wallet_file_path = 'wal.txt'
+wallet_file_path = '.wal'
 wallet_addresses = read_wallet_addresses_from_file(wallet_file_path)
 
 total_llama, total_waifu, total_text, total_image = calculate_total_points(wallet_addresses)
