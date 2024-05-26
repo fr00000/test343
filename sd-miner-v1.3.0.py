@@ -118,60 +118,99 @@ class MinerConfig(BaseConfig):
 #     random.shuffle(wallet_strings_list)
 #     return wallet_strings_list
 
+# def generate_miner_ids():
+#     if os.path.exists("miner_ids.txt"):
+#         with open("miner_ids.txt", "r") as file:
+#             miner_ids = [line.strip() for line in file]
+        
+#         if len(miner_ids) < 120:
+#             remaining_count = 120 - len(miner_ids)
+            
+#             with open("wal.txt", "r") as file:
+#                 wallet_addresses = [line.strip() for line in file]
+            
+#             for _ in range(remaining_count):
+#                 address = random.choice(wallet_addresses)
+                
+#                 tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                
+#                 miner_id = address + "-" + tag
+                
+#                 while miner_id in miner_ids:
+#                     tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+#                     miner_id = address + "-" + tag
+                
+#                 miner_ids.append(miner_id)
+            
+#             with open("miner_ids.txt", "a") as file:
+#                 for miner_id in miner_ids[-remaining_count:]:
+#                     file.write(miner_id + "\n")
+        
+#         return miner_ids
+#     else:
+#         with open("wal.txt", "r") as file:
+#             miner_ids = []
+
+#             wallet_addresses = file.readlines()[:60]
+
+#             for address in wallet_addresses:
+#                 address = address.strip()
+                
+#                 for _ in range(2):
+#                     tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                    
+#                     miner_id = address + "-" + tag
+                    
+#                     while miner_id in miner_ids:
+#                         tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+#                         miner_id = address + "-" + tag
+                    
+#                     miner_ids.append(miner_id)
+
+#         with open("miner_ids.txt", "w") as file:
+#             for miner_id in miner_ids:
+#                 file.write(miner_id + "\n")
+                
+#         return miner_ids
+
 def generate_miner_ids():
-    if os.path.exists("miner_ids.txt"):
-        with open("miner_ids.txt", "r") as file:
-            miner_ids = [line.strip() for line in file]
-        
-        if len(miner_ids) < 120:
-            remaining_count = 120 - len(miner_ids)
-            
-            with open("wal.txt", "r") as file:
-                wallet_addresses = [line.strip() for line in file]
-            
-            for _ in range(remaining_count):
-                address = random.choice(wallet_addresses)
-                
-                tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-                
-                miner_id = address + "-" + tag
-                
-                while miner_id in miner_ids:
-                    tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-                    miner_id = address + "-" + tag
-                
-                miner_ids.append(miner_id)
-            
-            with open("miner_ids.txt", "a") as file:
-                for miner_id in miner_ids[-remaining_count:]:
-                    file.write(miner_id + "\n")
-        
-        return miner_ids
+    # Check if the ".id" file exists and read its content if it does
+    if os.path.exists(".id"):
+        with open(".id", "r") as file:
+            existing_miner_ids = file.read().splitlines()
+            if len(existing_miner_ids) == 80:
+                return existing_miner_ids
     else:
-        with open("wal.txt", "r") as file:
-            miner_ids = []
+        existing_miner_ids = []
 
-            wallet_addresses = file.readlines()[:60]
+    # Read Ethereum addresses from the file
+    with open(".wal", "r") as file:
+        addresses = file.read().splitlines()
 
-            for address in wallet_addresses:
-                address = address.strip()
-                
-                for _ in range(2):
-                    tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-                    
-                    miner_id = address + "-" + tag
-                    
-                    while miner_id in miner_ids:
-                        tag = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-                        miner_id = address + "-" + tag
-                    
-                    miner_ids.append(miner_id)
+    # Generate unique random 6-digit alphanumeric strings (miner_ids)
+    miner_ids = set(existing_miner_ids)
+    while len(miner_ids) < 80:
+        miner_id = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+        miner_ids.add(miner_id)
 
-        with open("miner_ids.txt", "w") as file:
-            for miner_id in miner_ids:
-                file.write(miner_id + "\n")
-                
-        return miner_ids
+    # Assign at least one miner_id to each address
+    assigned_miner_ids = existing_miner_ids.copy()
+    for address in addresses:
+        if len(miner_ids) > 0 and not any(address in miner_id for miner_id in assigned_miner_ids):
+            miner_id = miner_ids.pop()
+            assigned_miner_ids.append(f"{address}-{miner_id}")
+
+    # Randomly assign additional miner_ids to addresses
+    while len(miner_ids) > 0:
+        address = random.choice(addresses)
+        miner_id = miner_ids.pop()
+        assigned_miner_ids.append(f"{address}-{miner_id}")
+
+    # Write the assigned miner_ids to the ".id" file
+    with open(".id", "w") as file:
+        file.write("\n".join(assigned_miner_ids))
+
+    return assigned_miner_ids
 
 def load_config(filename='config.toml', cuda_device_id=0):
     base_dir = os.path.dirname(os.path.abspath(__file__))
