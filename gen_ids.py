@@ -35,8 +35,8 @@ def create_and_save_miner_ids(addresses, total_miner_ids, ids_file, env_file):
             file.write(miner_id + '\n')
 
     with open(env_file, 'w') as file:
-        for i, miner_id in enumerate(miner_ids):
-            file.write(f"MINER_ID_{i}={miner_id}\n")
+        for i, address in enumerate(addresses):
+            file.write(f"MINER_ID_{i}={address}\n")
 
 if os.path.exists(ids_file) or os.path.exists(env_file):
     print(f"One or both output files already exist. Exiting the program.")
