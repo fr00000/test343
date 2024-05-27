@@ -175,12 +175,12 @@ class MinerConfig(BaseConfig):
 
 def generate_miner_ids():
     # Check if the ".id" file exists and read its content if it does
-    if os.path.exists(".id"):
+    if os.path.exists(".ids"):
         with open(".id", "r") as file:
             existing_miner_ids = file.read().splitlines()
             if len(existing_miner_ids) == 80:
                 return existing_miner_ids
-
+                
 def load_config(filename='config.toml', cuda_device_id=0):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(base_dir, filename)
