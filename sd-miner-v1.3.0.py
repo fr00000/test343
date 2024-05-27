@@ -180,37 +180,6 @@ def generate_miner_ids():
             existing_miner_ids = file.read().splitlines()
             if len(existing_miner_ids) == 80:
                 return existing_miner_ids
-    else:
-        existing_miner_ids = []
-
-    # Read Ethereum addresses from the file
-    with open(".wal", "r") as file:
-        addresses = file.read().splitlines()
-
-    # Generate unique random 6-digit alphanumeric strings (miner_ids)
-    miner_ids = set(existing_miner_ids)
-    while len(miner_ids) < 80:
-        miner_id = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-        miner_ids.add(miner_id)
-
-    # Assign at least one miner_id to each address
-    assigned_miner_ids = existing_miner_ids.copy()
-    for address in addresses:
-        if len(miner_ids) > 0 and not any(address in miner_id for miner_id in assigned_miner_ids):
-            miner_id = miner_ids.pop()
-            assigned_miner_ids.append(f"{address}-{miner_id}")
-
-    # Randomly assign additional miner_ids to addresses
-    while len(miner_ids) > 0:
-        address = random.choice(addresses)
-        miner_id = miner_ids.pop()
-        assigned_miner_ids.append(f"{address}-{miner_id}")
-
-    # Write the assigned miner_ids to the ".id" file
-    with open(".id", "w") as file:
-        file.write("\n".join(assigned_miner_ids))
-
-    return assigned_miner_ids
 
 def load_config(filename='config.toml', cuda_device_id=0):
     base_dir = os.path.dirname(os.path.abspath(__file__))
