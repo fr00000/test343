@@ -227,7 +227,7 @@ def get_miner_ids():
     miner_ids = []
     
     # Read the miner_ids.txt file
-    with open('miner_ids.txt', 'r') as file:
+    with open('.ids', 'r') as file:
         ids = file.readlines()
     
     # Remove any leading/trailing whitespace
@@ -235,7 +235,7 @@ def get_miner_ids():
     
     # Check if the number of miner IDs is exactly 120
     if len(ids) != 80:
-        raise ValueError(f"Expected 120 miner IDs, but found {len(ids)}")
+        raise ValueError(f"Expected 80 miner IDs, but found {len(ids)}")
     
     # Create a list of lists, each containing 3 miner IDs
     for i in range(0, len(ids), 2):
