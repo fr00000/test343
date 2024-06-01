@@ -3,13 +3,13 @@ import random
 import string
 
 NUM_ADDRESSES = 20
-TOTAL_MINER_IDS = 80
+TOTAL_MINER_IDS = 120
 wallet_file = '.wal'
 ids_file = '.ids'
 env_file = '.env'
 
 def generate_miner_id(address):
-    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+    random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
     return f"{address}-{random_string}"
 
 def read_addresses_from_file(file_path, num_addresses):
