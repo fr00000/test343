@@ -73,6 +73,7 @@ def load_model(config, model_id):
         ).to('cuda:' + str(config.cuda_device_id))
 
     pipe.safety_checker = None
+    pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
     
     # helper = DeepCacheSDHelper(pipe=pipe)
     # helper.set_params(
