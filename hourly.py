@@ -73,7 +73,7 @@ def job():
     print(f"Current Image Count: {current_image}")
 
     global total_llama, total_waifu, total_text, total_image
-    if total_llama == 0:
+    if total_llama == 0 and total_waifu == 0:
         hourly_llama, hourly_waifu, hourly_text, hourly_image ,daily_waifu ,daily_llama = 0, 0, 0, 0, 0, 0
     else:     
         hourly_llama = current_llama - total_llama
