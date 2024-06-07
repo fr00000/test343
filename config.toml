@@ -31,7 +31,7 @@ num_cuda_devices = 1
 num_child_process = 40
 sleep_duration = 1
 min_deadline = 1
-reload_interval = 600
+reload_interval = 1800
 signal_interval = 600
 
 [processing_limits]
