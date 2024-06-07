@@ -283,7 +283,7 @@ def periodic_send_model_info_signal(thread_config, miner_ids):
                 "version": thread_config.version,  # format is like "sd-v1.2.0"
                 "options": {"exclude_sdxl": thread_config.exclude_sdxl}
             }, miner_id, s)
-        time.sleep(600)  # Adjust the sleep interval based on your desired frequency
+        time.sleep(1800)  # Adjust the sleep interval based on your desired frequency
         
         
 def main(cuda_device_id):
