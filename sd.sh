@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Command to start the kuzco worker
-START_COMMAND="sd-miner-v1.3.0.py --exclude-sdxl"
+START_COMMAND="python3 sd-miner-v1.3.0.py --exclude-sdxl"
 
 # Function to start the kuzco worker, wait 5 minutes, then restart
 start_and_restart() {
