@@ -25,7 +25,7 @@ check_prerequisites() {
     local python_version=$(python3 --version 2>&1 | grep -oP 'Python \K[0-9]+\.[0-9]+')
 
     # Decide whether to check for python3-venv or python3.8-venv based on Python version
-    if [[ "$python_version" =~ ^3\.(8|9|10|11)$ ]]; then
+    if [[ "$python_version" =~ ^3\.(8|9|10|11|12)$ ]]; then
         prerequisites+=("python3-venv")
     else
         prerequisites+=("python3.8-venv")
