@@ -293,7 +293,8 @@ def periodic_send_model_info_signal(base_config, miner_ids, last_signal_time):
     while True:
         last_signal_time = time.time()
         for i in range(base_config.num_child_process):
-            _ = send_model_info_signal(base_config, miner_ids[i], last_signal_time)
+            for j in range(len(miner_ids[i])):
+                _ = send_model_info_signal(base_config, miner_ids[i][j], last_signal_time)
         time.sleep(base_config.signal_interval) # Adjust the sleep interval based on your desired frequency
 
 def main_loop():
