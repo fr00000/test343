@@ -273,7 +273,7 @@ def process_jobs(config, session):
     return True
 
 def periodic_send_model_info_signal(thread_config, miner_ids):
-    m_ids = miner_ids[:30]
+    m_ids = miner_ids[:20]
     s = requests.Session()
     while True:
         for j in range(len(m_ids)):
