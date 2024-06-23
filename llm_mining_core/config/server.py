@@ -40,6 +40,8 @@ class LLMServerConfig:
             "--port", str(self.base_config.port),
             "--tensor-parallel-size",str(self.num_gpus),
             "--gpu-memory-utilization", self.gpu_memory_util,
+            "--quantization", "fp8",
+            "--kv-cache-dtype", "fp8"
         ]
 
         if self.model_revision:
