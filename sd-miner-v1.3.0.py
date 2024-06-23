@@ -179,7 +179,8 @@ def generate_miner_ids():
         with open(".ids", "r") as file:
             existing_miner_ids = file.read().splitlines()
             if len(existing_miner_ids) == 120:
-                return existing_miner_ids[:80]
+                eighty_ids = existing_miner_ids[:80]
+                return eighty_ids
                 
 def load_config(filename='config.toml', cuda_device_id=0):
     base_dir = os.path.dirname(os.path.abspath(__file__))
