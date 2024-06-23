@@ -238,8 +238,9 @@ def get_miner_ids():
         raise ValueError(f"Expected 80 miner IDs, but found {len(ids)}")
     
     # Create a list of lists, each containing 3 miner IDs
-    for i in range(0, len(ids), 3):
-        miner_ids.append(ids[i:i+3])
+    m_ids = ids[:80]
+    for i in range(0, len(m_ids), 2):
+        miner_ids.append(ids[i:i+2])
     
     return miner_ids
     
