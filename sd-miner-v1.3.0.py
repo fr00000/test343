@@ -274,11 +274,10 @@ def process_jobs(config, session):
     return True
 
 def periodic_send_model_info_signal(thread_config, miner_ids):
-    m_ids = miner_ids[:20]
     s = requests.Session()
     while True:
-        for j in range(len(m_ids)):
-            miner_id = m_ids[j]
+        for j in range(len(miner_ids)):
+            miner_id = miner_ids[j]
             response = post_request("https://d2k7cjzmjgpm6p.cloudfront.net/prod/miner_signal", {
                 "miner_id": miner_id,
                 "model_type": "SD",
