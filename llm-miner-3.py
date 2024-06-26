@@ -342,7 +342,7 @@ def main_loop():
 
         logging.info("LLM miner started")
 
-        Start the periodic function in a separate thread
+        #$Start the periodic function in a separate thread
         last_signal_time = time.time()
         periodic_thread = threading.Thread(target=periodic_send_model_info_signal, args=(base_config, miner_ids, last_signal_time))
         periodic_thread.start()
